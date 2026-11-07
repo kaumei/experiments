@@ -20,7 +20,7 @@ import smoke
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('variant', choices=['javalin-jdbi3', 'javalin-mybatis', 'javalin-jooq'])
+    parser.add_argument('variant', choices=['javalin-jdbi3', 'javalin-mybatis', 'javalin-jooq', 'javalin-kaumei-jdbc'])
     parser.add_argument('--vm', default='javalin-512')
     parser.add_argument('--release', required=True)
     parser.add_argument('--preparation', '--manifest', dest='preparation', type=Path,

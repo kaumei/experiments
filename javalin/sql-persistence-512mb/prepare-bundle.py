@@ -9,6 +9,10 @@ import subprocess
 
 ROOT=Path(__file__).resolve().parent
 APPS=ROOT
+VARIANTS=[('jdbi3','RepositoryCheck'),
+          ('mybatis','MyBatisRepositoryCheck'),
+          ('jooq','JooqRepositoryCheck'),
+          ('kaumei-jdbc','KaumeiJdbcRepositoryCheck')]
 
 
 def main():
@@ -20,7 +24,7 @@ def main():
     bundle=ROOT/'prepared-bundles'/args.name
     bundle.mkdir(parents=True,exist_ok=False)
     inventory=json.loads((APPS/'reproduction-inventory.json').read_text())
-    for variant,checker in [('jdbi3','RepositoryCheck'),('mybatis','MyBatisRepositoryCheck'),('jooq','JooqRepositoryCheck')]:
+    for variant,checker in VARIANTS:
         module=APPS/('javalin-'+variant)
         jar=module/'target'/f'javalin-{variant}-1.0.jar'
         assert hashlib.sha256(jar.read_bytes()).hexdigest()==inventory['applications']['javalin-'+variant]['jar_sha256']
@@ -39,6 +43,7 @@ def main():
               'com.zaxxer:HikariCP','com.h2database:h2','io.micrometer:micrometer-core']
     versions={name:inventory['shared_runtime_dependencies'][name] for name in selected}
     versions.update({'jdbi':'3.55.0','mybatis':'3.5.19','jooq':'3.21.9',
+                     'kaumei-jdbc':'main-SNAPSHOT',
                      'statlite':'v0.6.0'})
     repository=ROOT
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repository,text=True).strip()
@@ -47,8 +52,9 @@ def main():
     preparation={
         'source_commit':commit, 'source_uncommitted_changes':dirty,
         'source_note':'New reproduction build, not an archived measured binary; Git revision and dirty state describe this build.',
+        'source_dependencies':inventory['external_sources'],
         'application_jars':{f'{name}.jar':inventory['applications'][name]['jar_sha256']
-                            for name in ['javalin-jdbi3','javalin-mybatis','javalin-jooq']},
+                            for name in [f'javalin-{variant}' for variant,_ in VARIANTS]},
         'versions':versions,
         'jvm_flags':['-Xms16m','-Xmx80m','-XX:+UseSerialGC','-Xss512k'],
         'vm':{'cpus':1,'configured_memory_mib':512,'swap':'disabled'},

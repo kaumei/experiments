@@ -149,6 +149,32 @@ class EvidenceTests(unittest.TestCase):
         status.unlink()
         self.assertEqual(subprocess.run(command,capture_output=True,env=env).returncode,0)
 
+    def test_guest_selects_kaumei_jar_and_checks(self):
+        release = self.base/'release'
+        run = self.base/'guest-check'
+        fake_bin = self.base/'bin'
+        release.mkdir()
+        run.mkdir()
+        fake_bin.mkdir()
+        (release/'javalin-kaumei-jdbc.jar').touch()
+        (release/'kaumei-jdbc-checks.jar').touch()
+        java_log = self.base/'java-calls.txt'
+        java = fake_bin/'java'
+        java.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$JAVA_LOG"\n')
+        java.chmod(0o755)
+        env = dict(os.environ, JAVA_LOG=str(java_log),
+                   PATH=str(fake_bin) + os.pathsep + os.environ['PATH'])
+        result = subprocess.run(
+            ['bash', str(ROOT/'guest.sh'), 'check', 'javalin-kaumei-jdbc',
+             str(run), str(release)], capture_output=True, text=True, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = java_log.read_text().splitlines()
+        self.assertEqual(len(calls), 2)
+        self.assertIn('lab.KaumeiJdbcRepositoryCheck', calls[0])
+        self.assertIn('javalin-kaumei-jdbc.jar', calls[0])
+        self.assertIn('kaumei-jdbc-checks.jar', calls[0])
+        self.assertIn('lab.FixtureRecoveryCheck', calls[1])
+
     def test_matrix_and_configuration_and_duplicates(self):
         roots=[self.run_data(str(i),v,offset=i*400) for i,v in enumerate(compare.VARIANTS+list(reversed(compare.VARIANTS)))]
         self.assertTrue(compare.compare(roots)['complete'])
@@ -159,6 +185,15 @@ class EvidenceTests(unittest.TestCase):
         self.assertFalse(compare.compare(roots)['complete'])
         meta['durations']['idle']=30;p.write_text(json.dumps(meta))
         self.fail_batch(roots[0],1499)
+        self.assertFalse(compare.compare(roots)['complete'])
+
+    def test_kaumei_four_variant_matrix(self):
+        variants = compare.KAUMEI_VARIANTS
+        roots = [self.run_data(str(i), variant, offset=i*400)
+                 for i, variant in enumerate(variants + list(reversed(variants)))]
+        result = compare.compare(roots, variants)
+        self.assertTrue(result['complete'], result['issues'])
+        self.assertEqual(set(result['unmonitored_ranges']), set(variants))
         self.assertFalse(compare.compare(roots)['complete'])
 
     def test_one_page_memory_variation(self):

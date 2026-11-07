@@ -9,8 +9,7 @@ from pathlib import Path
 import sys
 import analyze
 
-VARIANTS = ['javalin-jdbi3', 'javalin-mybatis', 'javalin-jooq']
-
+VARIANTS = ['javalin-jdbi3', 'javalin-mybatis', 'javalin-jooq', 'javalin-kaumei-jdbc']
 
 def compare(roots):
     rows, issues, signatures, identities, intervals = [], [], [], [], []

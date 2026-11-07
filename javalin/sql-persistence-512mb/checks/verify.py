@@ -15,6 +15,7 @@ VARIANTS = {
     'jdbi3': ('RepositoryCheck.java', 'RepositoryCheck'),
     'mybatis': ('MyBatisRepositoryCheck.java', 'lab.MyBatisRepositoryCheck'),
     'jooq': ('JooqRepositoryCheck.java', 'lab.JooqRepositoryCheck'),
+    'kaumei-jdbc': ('KaumeiJdbcRepositoryCheck.java', 'lab.KaumeiJdbcRepositoryCheck'),
 }
 FLAGS = ['-Xms16m', '-Xmx80m', '-XX:+UseSerialGC', '-Xss512k']
 

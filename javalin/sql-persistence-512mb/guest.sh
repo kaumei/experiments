@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 action=$1 variant=$2 run=$3 release=$4
-case "$variant" in javalin|spring|javalin-jdbi3|javalin-mybatis|javalin-jooq) ;; *) exit 2;; esac
+case "$variant" in javalin|spring|javalin-jdbi3|javalin-mybatis|javalin-jooq|javalin-kaumei-jdbc) ;; *) exit 2;; esac
 case "$action" in
   init)
     mkdir "$run"
@@ -43,6 +43,7 @@ EOF
     [[ $variant != javalin-jdbi3 ]] || jar="$release/javalin-jdbi3.jar"
     [[ $variant != javalin-mybatis ]] || jar="$release/javalin-mybatis.jar"
     [[ $variant != javalin-jooq ]] || jar="$release/javalin-jooq.jar"
+    [[ $variant != javalin-kaumei-jdbc ]] || jar="$release/javalin-kaumei-jdbc.jar"
     [[ $variant != spring ]] || jar="$release/spring-extracted/spring.jar"
     test -f "$jar"
     echo 1 > "$run/cadence"
@@ -56,6 +57,7 @@ EOF
     main=lab.JooqRepositoryCheck
     [[ $short != jdbi3 ]] || main=RepositoryCheck
     [[ $short != mybatis ]] || main=lab.MyBatisRepositoryCheck
+    [[ $short != kaumei-jdbc ]] || main=lab.KaumeiJdbcRepositoryCheck
     java -Xms16m -Xmx80m -XX:+UseSerialGC -Xss512k -cp "$release/$variant.jar:$release/$short-checks.jar" "$main" "$run/repository-db" > "$run/repository-check.txt" 2>&1
     java -Xms16m -Xmx80m -XX:+UseSerialGC -Xss512k -cp "$release/$variant.jar:$release/$short-checks.jar" lab.FixtureRecoveryCheck "$run/fixture-db" > "$run/fixture-check.txt" 2>&1
     ;;

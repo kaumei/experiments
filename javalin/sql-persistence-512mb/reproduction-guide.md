@@ -34,6 +34,7 @@ included as JSON; the omitted raw SQLite database cannot be rechecked here.
 mvn -f javalin-jdbi3/pom.xml package dependency:tree -DoutputFile=dependencies.txt
 mvn -f javalin-mybatis/pom.xml package dependency:tree -DoutputFile=dependencies.txt
 mvn -f javalin-jooq/pom.xml package dependency:tree -DoutputFile=dependencies.txt
+mvn -f javalin-kaumei-jdbc/pom.xml package dependency:tree -DoutputFile=dependencies.txt
 python3 checks/inventory.py
 python3 checks/verify.py
 ```

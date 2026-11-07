@@ -24,7 +24,7 @@ def check(variant,local,port=18080):
     duplicate=dict(base,sequence=390,sampleIndex=0)
     assert call('POST','/api/quotes/batches',duplicate)[0]==409
     assert call('GET','/inspection/state')[1]==state
-    if variant in ('javalin-jdbi3','javalin-mybatis','javalin-jooq'):
+    if variant in ('javalin-jdbi3','javalin-mybatis','javalin-jooq','javalin-kaumei-jdbc'):
         negatives=[]
         for path in ['/api/quotes/history','/api/quotes/history?symbol=AAPL&limit=abc','/api/quotes/history?symbol=AAPL&limit=2147483648']:
             response=call('GET',path)
